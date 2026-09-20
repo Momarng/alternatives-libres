@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sans l'abonnement — alternatives libres aux logiciels et services payants</title>
+<meta name="description" content="Catalogue d'alternatives gratuites et open-source aux logiciels et services payants : Netflix, Spotify, Photoshop, Office, Splunk, Zoom et bien d'autres.">
+<meta property="og:title" content="Sans l'abonnement">
+<meta property="og:description" content="Le même travail, sans la facture mensuelle. Alternatives gratuites et open-source aux logiciels et services payants.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07090C;
+    --bg-2: #0B0E13;
+    --surface: #10141B;
+    --surface-2: #161B24;
+    --line: #1E2531;
+    --line-soft: #171D26;
+    --text: #EDF0F4;
+    --muted: #8894A5;
+    --muted-2: #5D6878;
+    --ice: #7FB3FF;
+    --ice-dim: rgba(127,179,255,0.12);
+    --gold: #E9B171;
+    --gold-dim: rgba(233,177,113,0.12);
+    --mint: #74E0B8;
+  }
+  /* Le site est conçu en sombre ; en préférence claire on garde le même rendu. */
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .serif { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  a { color: inherit; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- Fond : grille + halo ---------- */
+  .bg-layer { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .bg-grid {
+    position: absolute; inset: -2px;
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 68px 68px;
+    mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 20%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 20%, transparent 78%);
+    opacity: 0.75;
+  }
+  .bg-halo {
+    position: absolute; top: -220px; left: 50%; transform: translateX(-50%);
+    width: 1000px; height: 620px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(127,179,255,0.10) 0%, rgba(233,177,113,0.05) 38%, transparent 68%);
+    filter: blur(20px);
+  }
+  main, header { position: relative; z-index: 1; }
+
+  /* ---------- Navbar ---------- */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    border-bottom: 1px solid transparent;
+    transition: background 0.3s, border-color 0.3s, backdrop-filter 0.3s;
+  }
+  header.scrolled {
+    background: rgba(7,9,12,0.72);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border-bottom-color: var(--line);
+  }
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px; gap: 24px;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; text-decoration: none; }
+  .logo-mark {
+    width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
+    background: linear-gradient(140deg, var(--ice), var(--gold));
+    display: grid; place-items: center; color: #07090C; font-size: 13px; font-weight: 700;
+  }
+  .nav-links { display: flex; gap: 6px; align-items: center; }
+  .nav-links a {
+    font-size: 14px; color: var(--muted); text-decoration: none;
+    padding: 8px 13px; border-radius: 8px; transition: color 0.2s, background 0.2s;
+  }
+  .nav-links a:hover, .nav-links a:focus-visible { color: var(--text); background: var(--surface); }
+  .nav-cta {
+    font-size: 13.5px; font-weight: 500; text-decoration: none;
+    padding: 9px 17px; border-radius: 9px;
+    background: var(--text); color: #07090C;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(255,255,255,0.12); }
+  .burger {
+    display: none; background: none; border: 1px solid var(--line); border-radius: 9px;
+    width: 40px; height: 38px; color: var(--text); cursor: pointer; padding: 0;
+    align-items: center; justify-content: center;
+  }
+  .mobile-menu {
+    display: none; flex-direction: column; gap: 2px;
+    padding: 8px 0 20px; border-top: 1px solid var(--line);
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a { padding: 13px 4px; text-decoration: none; color: var(--muted); font-size: 15px; border-bottom: 1px solid var(--line-soft); }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 84px 0 64px; display: grid; grid-template-columns: 1.06fr 0.94fr; gap: 64px; align-items: center; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-size: 12.5px; color: var(--muted); border: 1px solid var(--line);
+    background: rgba(255,255,255,0.02); padding: 6px 13px 6px 9px; border-radius: 100px; margin-bottom: 26px;
+  }
+  .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 0 rgba(116,224,184,0.5); animation: pulse 2.6s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(116,224,184,0.45);} 70% { box-shadow: 0 0 0 9px rgba(116,224,184,0);} 100% { box-shadow: 0 0 0 0 rgba(116,224,184,0);} }
+  h1 { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(38px, 5.4vw, 66px); line-height: 1.04; letter-spacing: -0.015em; margin: 0 0 20px; max-width: 13ch; }
+  h1 em { font-style: italic; color: var(--gold); }
+  .lede { font-size: 16.5px; line-height: 1.65; color: var(--muted); max-width: 48ch; margin: 0 0 32px; }
+  .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px; text-decoration: none; cursor: pointer;
+    font-size: 14.5px; font-weight: 500; padding: 13px 22px; border-radius: 11px; border: 1px solid transparent;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+  }
+  .btn-primary { background: var(--text); color: #07090C; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,255,255,0.14); }
+  .btn-ghost { border-color: var(--line); color: var(--text); background: rgba(255,255,255,0.015); }
+  .btn-ghost:hover { border-color: var(--ice); background: var(--ice-dim); transform: translateY(-2px); }
+
+  /* ---------- Terminal / ticket ---------- */
+  .panel {
+    background: linear-gradient(180deg, var(--surface) 0%, var(--bg-2) 100%);
+    border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+    box-shadow: 0 30px 80px -30px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.02) inset;
+  }
+  .panel-bar { display: flex; align-items: center; gap: 8px; padding: 13px 16px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,0.015); }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+  .panel-bar .title { margin-left: 8px; font-size: 12px; color: var(--muted-2); }
+  .panel-body { padding: 18px 20px 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+  .term-line { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 9px 0; border-bottom: 1px dashed var(--line-soft); opacity: 0; transform: translateY(6px); }
+  .term-line.in { opacity: 1; transform: none; transition: opacity 0.5s ease, transform 0.5s ease; }
+  .term-line .svc { color: var(--muted); }
+  .term-line .alt { color: var(--text); }
+  .term-line .old { color: var(--muted-2); text-decoration: line-through; white-space: nowrap; }
+  .term-line .new { color: var(--mint); white-space: nowrap; }
+  .term-total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .term-total span:first-child { color: var(--muted); font-size: 12.5px; }
+  .term-total .amount { font-family: 'Instrument Serif', serif; font-size: 27px; color: var(--gold); }
+
+  /* ---------- Stats ---------- */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin: 12px 0 88px; }
+  .stat { background: var(--bg-2); padding: 26px 22px; }
+  .stat b { display: block; font-family: 'Instrument Serif', serif; font-size: 34px; line-height: 1; margin-bottom: 8px; }
+  .stat span { font-size: 12.5px; color: var(--muted); }
+
+  /* ---------- Catalogue ---------- */
+  .section-head { margin-bottom: 28px; }
+  .section-head h2 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: clamp(28px, 3.4vw, 40px); margin: 0 0 12px; letter-spacing: -0.01em; }
+  .section-head p { color: var(--muted); font-size: 15.5px; margin: 0; max-width: 56ch; line-height: 1.6; }
+
+  .toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+  .search {
+    display: flex; align-items: center; gap: 10px; flex: 1 1 280px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 11px; padding: 11px 15px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search:focus-within { border-color: var(--ice); box-shadow: 0 0 0 3px var(--ice-dim); }
+  .search input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-size: 14.5px; font-family: inherit; min-width: 0; }
+  .search input::placeholder { color: var(--muted-2); }
+  .search svg { opacity: 0.5; flex-shrink: 0; }
+  .kbd { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted-2); border: 1px solid var(--line); border-radius: 5px; padding: 2px 6px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .chip {
+    font-family: inherit; font-size: 13px; cursor: pointer;
+    background: transparent; border: 1px solid var(--line); color: var(--muted);
+    padding: 7px 14px; border-radius: 100px; transition: all 0.2s;
+  }
+  .chip:hover { color: var(--text); border-color: var(--muted-2); }
+  .chip.active { background: var(--text); border-color: var(--text); color: #07090C; font-weight: 500; }
+  .chip:focus-visible, .btn:focus-visible, .nav-links a:focus-visible, a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--ice); outline-offset: 2px; }
+
+  .count { font-size: 13px; color: var(--muted-2); font-family: 'JetBrains Mono', monospace; margin-bottom: 18px; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding-bottom: 90px; }
+  .card {
+    position: relative; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 11px;
+    transition: border-color 0.25s, transform 0.25s, background 0.25s;
+    overflow: hidden;
+  }
+  .card::before {
+    content: ""; position: absolute; inset: 0; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(127,179,255,0.09), transparent 45%);
+  }
+  .card:hover { border-color: #2C3646; transform: translateY(-3px); background: var(--surface-2); }
+  .card:hover::before { opacity: 1; }
+  .card-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .pill { font-size: 11.5px; color: var(--ice); background: var(--ice-dim); padding: 4px 10px; border-radius: 100px; white-space: nowrap; }
+  .price-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--gold); background: var(--gold-dim); padding: 4px 8px; border-radius: 6px; white-space: nowrap; }
+  .card h3 { font-size: 17.5px; font-weight: 600; margin: 2px 0 0; letter-spacing: -0.01em; }
+  .swap { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .swap .arrow { color: var(--muted-2); }
+  .swap b { color: var(--text); font-weight: 500; }
+  .card .desc { font-size: 13.6px; line-height: 1.6; color: var(--muted); margin: 0; flex-grow: 1; }
+  .card .link {
+    font-size: 13.2px; color: var(--text); text-decoration: none; font-weight: 500;
+    border-top: 1px solid var(--line); padding-top: 13px; margin-top: 4px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card .link span:last-child { color: var(--muted-2); transition: transform 0.2s, color 0.2s; }
+  .card:hover .link span:last-child { transform: translateX(3px); color: var(--ice); }
+  .empty { grid-column: 1/-1; text-align: center; padding: 70px 20px; color: var(--muted); border: 1px dashed var(--line); border-radius: 14px; }
+  .empty b { display: block; color: var(--text); font-size: 16px; margin-bottom: 8px; font-weight: 500; }
+
+  /* ---------- Reveal ---------- */
+  .reveal { opacity: 0; transform: translateY(18px); }
+  .reveal.in { opacity: 1; transform: none; transition: opacity 0.7s cubic-bezier(.2,.7,.3,1), transform 0.7s cubic-bezier(.2,.7,.3,1); }
+
+  /* ---------- Contact ---------- */
+  .contact { border-top: 1px solid var(--line); padding: 76px 0 84px; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 56px; }
+  .contact-links { display: flex; flex-direction: column; gap: 10px; margin-top: 26px; }
+  .contact-links a { display: flex; align-items: center; gap: 11px; text-decoration: none; color: var(--muted); font-size: 14.5px; padding: 12px 15px; border: 1px solid var(--line); border-radius: 11px; transition: all 0.2s; }
+  .contact-links a:hover { color: var(--text); border-color: var(--ice); background: var(--ice-dim); }
+  form { display: grid; gap: 14px; }
+  .field { display: grid; gap: 7px; }
+  .field label { font-size: 12.5px; color: var(--muted); }
+  .field input, .field textarea {
+    font-family: inherit; font-size: 14.5px; color: var(--text);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 11px; padding: 12px 15px;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
+  }
+  .field input:focus, .field textarea:focus { border-color: var(--ice); box-shadow: 0 0 0 3px var(--ice-dim); }
+  .field textarea { resize: vertical; min-height: 118px; }
+  .field .err { font-size: 12px; color: #FF8B7A; display: none; }
+  .field.invalid input, .field.invalid textarea { border-color: #FF8B7A; }
+  .field.invalid .err { display: block; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-note { font-size: 12.5px; color: var(--muted-2); margin: 0; }
+  .sent { display: none; font-size: 14px; color: var(--mint); align-items: center; gap: 8px; }
+  .sent.show { display: flex; }
+
+  footer { border-top: 1px solid var(--line); padding: 26px 0 42px; font-size: 12.8px; color: var(--muted-2); display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+
+  @media (max-width: 960px) {
+    .hero { grid-template-columns: 1fr; gap: 44px; padding-top: 56px; }
+    h1 { max-width: 16ch; }
+    .contact { grid-template-columns: 1fr; gap: 40px; }
+    .stats { grid-template-columns: repeat(2, 1fr); margin-bottom: 64px; }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .nav-links, .nav-cta { display: none; }
+    .burger { display: flex; }
+  }
+  @media (max-width: 600px) {
+    .wrap { padding: 0 20px; }
+    .grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .panel-body { font-size: 12px; padding: 14px 15px 16px; }
+    .stat { padding: 20px 16px; }
+    .stat b { font-size: 28px; }
+    .hero { padding-top: 40px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+    .reveal, .term-line { opacity: 1 !important; transform: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-layer" aria-hidden="true">
+  <div class="bg-grid"></div>
+  <div class="bg-halo"></div>
+</div>
+
+<header id="site-header">
+  <div class="wrap">
+    <nav class="nav" aria-label="Navigation principale">
+      <a class="logo" href="#top"><span class="logo-mark">S</span> Sans l'abonnement</a>
+      <div class="nav-links">
+        <a href="#catalogue">Catalogue</a>
+        <a href="#categories">Catégories</a>
+        <a href="#methode">Méthode</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <a class="nav-cta" href="#catalogue">Parcourir</a>
+      <button class="burger" id="burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></svg>
+      </button>
+    </nav>
+    <div class="mobile-menu" id="mobile-menu">
+      <a href="#catalogue">Catalogue</a>
+      <a href="#categories">Catégories</a>
+      <a href="#methode">Méthode</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="wrap hero">
+    <div>
+      <div class="eyebrow"><span class="pulse"></span> Catalogue mis à jour — <span id="eyebrow-count">50</span> alternatives</div>
+      <h1>Le même travail, sans la <em>facture</em> mensuelle.</h1>
+      <p class="lede">Netflix, Photoshop, Office, Spotify, Splunk, Zoom : pour presque chaque service payant du quotidien, il existe un équivalent gratuit ou open-source. Ce catalogue vous dit lequel, et ce qu'il remplace vraiment.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#catalogue">Explorer le catalogue
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="#methode">Comment c'est trié</a>
+      </div>
+    </div>
+
+    <div class="panel" role="img" aria-label="Estimation des économies annuelles en remplaçant six services payants par leurs alternatives gratuites">
+      <div class="panel-bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="title mono">calcul-economies.sh</span>
+      </div>
+      <div class="panel-body" id="terminal"></div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="stats reveal">
+      <div class="stat"><b class="counter" data-to="50" data-prefix="">0</b><span>outils référencés</span></div>
+      <div class="stat"><b class="counter" data-to="14">0</b><span>catégories couvertes</span></div>
+      <div class="stat"><b class="counter" data-to="1240" data-suffix=" €">0</b><span>économies annuelles estimées</span></div>
+      <div class="stat"><b class="counter" data-to="100" data-suffix=" %">0</b><span>utilisables sans carte bancaire</span></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="catalogue">
+    <div class="section-head reveal" id="categories">
+      <h2>Ce que vous payez, et ce qui le remplace</h2>
+      <p>Cherchez par nom de service payant ou par outil de remplacement. Les fiches indiquent la limite honnête de chaque alternative — certaines remplacent tout, d'autres seulement l'essentiel.</p>
+    </div>
+
+    <div class="toolbar reveal">
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <label for="search" class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Rechercher un outil</label>
+        <input id="search" type="search" placeholder="Netflix, Photoshop, Splunk, Spotify…" autocomplete="off">
+        <span class="kbd">/</span>
+      </div>
+    </div>
+
+    <div class="chips" id="chips" role="group" aria-label="Filtrer par catégorie"></div>
+    <div class="count mono" id="count" aria-live="polite"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="wrap" id="methode">
+    <div class="section-head reveal">
+      <h2>Comment ce catalogue est construit</h2>
+      <p>Trois règles simples, appliquées à chaque fiche.</p>
+    </div>
+    <div class="grid reveal" style="padding-bottom:80px">
+      <div class="card">
+        <span class="pill">Règle 1</span>
+        <h3>Gratuit pour de vrai</h3>
+        <p class="desc">Un outil entre dans le catalogue s'il est utilisable durablement sans payer : licence libre, plan gratuit permanent, ou auto-hébergement. Les essais de 14 jours n'ont pas leur place ici.</p>
+      </div>
+      <div class="card">
+        <span class="pill">Règle 2</span>
+        <h3>La limite est dite</h3>
+        <p class="desc">Une alternative gratuite n'égale pas toujours l'original. Quand il manque quelque chose d'important — catalogue plus pauvre, courbe d'apprentissage, serveur à installer — la fiche le mentionne.</p>
+      </div>
+      <div class="card">
+        <span class="pill">Règle 3</span>
+        <h3>Légal, et rien d'autre</h3>
+        <p class="desc">Aucun outil de piratage, de contournement de DRM ou de partage illégal de contenu. Les alternatives au streaming sont des services et catalogues légitimes, pas des copies.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap contact" id="contact">
+    <div class="reveal">
+      <h2 class="serif" style="font-size:clamp(26px,3.2vw,36px);margin:0 0 12px;">Un outil manque ?</h2>
+      <p style="color:var(--muted);font-size:15.5px;line-height:1.65;margin:0;max-width:40ch;">Proposez une alternative que vous utilisez au quotidien, ou signalez une fiche devenue fausse.</p>
+      <div class="contact-links">
+        <a href="mailto:momarngom85@gmail.com">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+          momarngom85@gmail.com
+        </a>
+        <a href="https://www.linkedin.com/in/momar-ngom-9a678226a/" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          LinkedIn
+        </a>
+        <a href="https://github.com/Momarng" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-1-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 19.9 5a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.6 12.6 0 0 0-6.6 0C6.9 1.1 5.8 1.4 5.8 1.4A4.9 4.9 0 0 0 5.7 5a5.2 5.2 0 0 0-1.4 3.7c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-1 2.6V22"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+
+    <form id="form" novalidate class="reveal">
+      <div class="form-row">
+        <div class="field" id="f-name">
+          <label for="name">Nom</label>
+          <input id="name" name="name" type="text" autocomplete="name">
+          <span class="err">Indiquez votre nom.</span>
+        </div>
+        <div class="field" id="f-email">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email">
+          <span class="err">Adresse email invalide.</span>
+        </div>
+      </div>
+      <div class="field" id="f-subject">
+        <label for="subject">Sujet</label>
+        <input id="subject" name="subject" type="text" placeholder="Proposer une alternative">
+        <span class="err">Indiquez un sujet.</span>
+      </div>
+      <div class="field" id="f-message">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" placeholder="Quel outil payant, et par quoi le remplacer ?"></textarea>
+        <span class="err">Le message doit faire au moins 10 caractères.</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <button class="btn btn-primary" type="submit">Envoyer
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <span class="sent" id="sent">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>
+          Message validé — reste à brancher l'envoi côté serveur.
+        </span>
+      </div>
+      <p class="form-note">Démonstration : le formulaire valide les champs mais n'envoie rien pour l'instant.</p>
+    </form>
+  </section>
+</main>
+
+<footer class="wrap">
+  <span>Catalogue informatif — vérifiez la licence exacte avant tout usage professionnel.</span>
+  <span class="mono">v2 · 2026</span>
+</footer>
+
+<script>
+const TOOLS = [
+  // Streaming & divertissement
+  {n:"Pluto TV / Tubi", r:"Netflix", c:"Streaming vidéo", p:"13,49 €/mois", d:"Streaming légal financé par la publicité : films, séries et chaînes en direct, sans compte ni abonnement. Catalogue plus ancien et moins prestigieux que Netflix.", u:"https://pluto.tv"},
+  {n:"Kanopy / Médiathèque", r:"Netflix / Prime Video", c:"Streaming vidéo", p:"13,49 €/mois", d:"Films d'auteur et documentaires en accès gratuit via votre carte de bibliothèque. Dépend des accords de votre médiathèque.", u:"https://www.kanopy.com"},
+  {n:"Jellyfin", r:"Plex Pass", c:"Streaming vidéo", p:"5 €/mois", d:"Serveur multimédia personnel pour diffuser vos propres fichiers sur tous vos écrans. 100% libre, aucune fonction bloquée derrière un paiement.", u:"https://jellyfin.org"},
+  {n:"Spotify (plan gratuit) + Navidrome", r:"Spotify Premium", c:"Musique", p:"11,99 €/mois", d:"Le plan gratuit couvre l'écoute avec publicité ; Navidrome permet en plus de diffuser votre propre bibliothèque musicale depuis un serveur, hors ligne inclus.", u:"https://www.navidrome.org"},
+  {n:"SoundCloud / Bandcamp", r:"Apple Music", c:"Musique", p:"10,99 €/mois", d:"Écoute gratuite d'artistes indépendants et découverte musicale, avec achat direct au profit des créateurs.", u:"https://bandcamp.com"},
+  {n:"AntennaPod", r:"applis podcast payantes", c:"Musique", p:"~4 €/mois", d:"Lecteur de podcasts open-source : téléchargement automatique, vitesse variable, synchronisation. Sans publicité ni compte.", u:"https://antennapod.org"},
+
+  // Bureautique
+  {n:"LibreOffice", r:"Microsoft Office", c:"Bureautique", p:"99 €/an", d:"Suite complète texte, tableur et présentation, compatible .docx/.xlsx/.pptx. Mise en page parfois légèrement décalée sur les documents Word complexes.", u:"https://www.libreoffice.org"},
+  {n:"OnlyOffice", r:"Microsoft 365", c:"Bureautique", p:"12 €/mois", d:"Le rendu le plus fidèle aux formats Microsoft, en ligne ou en local, avec édition collaborative à plusieurs.", u:"https://www.onlyoffice.com"},
+  {n:"Stirling PDF", r:"Adobe Acrobat Pro", c:"Bureautique", p:"23,99 €/mois", d:"Fusionner, découper, signer, compresser, convertir et OCR-iser des PDF, depuis votre navigateur ou votre propre serveur.", u:"https://stirlingpdf.com"},
+  {n:"LanguageTool", r:"Grammarly Premium", c:"Bureautique", p:"12 €/mois", d:"Correction grammaticale et stylistique en français et dans 20+ langues, avec extension navigateur et version auto-hébergeable.", u:"https://languagetool.org"},
+  {n:"7-Zip / PeaZip", r:"WinRAR", c:"Bureautique", p:"licence unique", d:"Compression et extraction de tous les formats courants, chiffrement AES-256 inclus, sans fenêtre de rappel de licence.", u:"https://www.7-zip.org"},
+
+  // Design
+  {n:"GIMP", r:"Adobe Photoshop", c:"Design", p:"26,29 €/mois", d:"Retouche photo avancée : calques, masques, filtres, extensions. Interface exigeante et pas de fonctions génératives.", u:"https://www.gimp.org"},
+  {n:"Photopea", r:"Photoshop (usage ponctuel)", c:"Design", p:"26,29 €/mois", d:"Éditeur en ligne qui ouvre les .psd directement dans le navigateur, sans installation. Idéal pour une retouche rapide.", u:"https://www.photopea.com"},
+  {n:"Inkscape", r:"Adobe Illustrator", c:"Design", p:"26,29 €/mois", d:"Dessin vectoriel complet : logos, icônes, illustrations, export SVG/PDF/EPS.", u:"https://inkscape.org"},
+  {n:"Penpot", r:"Figma (plan payant)", c:"Design", p:"12 €/mois", d:"Conception d'interfaces collaborative, open-source et auto-hébergeable, avec prototypage et composants.", u:"https://penpot.app"},
+  {n:"Canva (gratuit) / VistaCreate", r:"Canva Pro", c:"Design", p:"11,99 €/mois", d:"Création de visuels à partir de modèles. Le plan gratuit suffit pour l'essentiel : la version Pro ajoute surtout la bibliothèque premium et le redimensionnement automatique.", u:"https://www.canva.com"},
+  {n:"Krita", r:"Procreate / Photoshop", c:"Design", p:"licence unique", d:"Peinture numérique et illustration, pensé pour tablette graphique, avec gestion avancée des brosses.", u:"https://krita.org"},
+  {n:"Blender", r:"Cinema 4D / 3ds Max", c:"Design", p:"60 €/mois", d:"Modélisation, animation, rendu et simulation 3D de niveau studio, entièrement gratuit.", u:"https://www.blender.org"},
+
+  // Vidéo & audio
+  {n:"DaVinci Resolve", r:"Adobe Premiere Pro", c:"Vidéo", p:"26,29 €/mois", d:"Montage, étalonnage et mixage professionnels. La version gratuite couvre la quasi-totalité des besoins hors effets avancés.", u:"https://www.blackmagicdesign.com/products/davinciresolve"},
+  {n:"Shotcut", r:"Final Cut / Premiere", c:"Vidéo", p:"26,29 €/mois", d:"Montage vidéo léger et multiplateforme, facile à prendre en main pour des projets simples.", u:"https://shotcut.org"},
+  {n:"OBS Studio", r:"Camtasia / Streamlabs Ultra", c:"Vidéo", p:"19 €/mois", d:"Capture d'écran, enregistrement et diffusion en direct. Devenu la référence du streaming, y compris chez les professionnels.", u:"https://obsproject.com"},
+  {n:"HandBrake", r:"convertisseurs vidéo payants", c:"Vidéo", p:"~30 €", d:"Conversion et compression vidéo avec profils prêts à l'emploi pour chaque appareil.", u:"https://handbrake.fr"},
+  {n:"Audacity", r:"Adobe Audition", c:"Audio", p:"23,99 €/mois", d:"Enregistrement et montage audio multipiste, réduction de bruit, effets et export dans tous les formats.", u:"https://www.audacityteam.org"},
+
+  // Communication
+  {n:"Jitsi Meet", r:"Zoom Pro", c:"Communication", p:"15,99 €/mois", d:"Visioconférence sans limite de 40 minutes ni compte obligatoire, partage d'écran inclus, auto-hébergeable.", u:"https://meet.jit.si"},
+  {n:"Mattermost", r:"Slack (plan payant)", c:"Communication", p:"8,25 €/mois", d:"Messagerie d'équipe auto-hébergée, avec historique complet — là où Slack gratuit le limite — et intégrations DevOps.", u:"https://mattermost.com"},
+  {n:"Signal", r:"WhatsApp Business", c:"Communication", p:"à l'usage", d:"Messagerie chiffrée de bout en bout, sans publicité ni exploitation des données.", u:"https://signal.org"},
+  {n:"Proton Mail", r:"Google Workspace", c:"Communication", p:"6 €/mois", d:"Messagerie chiffrée avec plan gratuit. Le stockage gratuit reste limité pour un usage professionnel intensif.", u:"https://proton.me/mail"},
+  {n:"Element / Matrix", r:"Discord Nitro / Teams", c:"Communication", p:"9,99 €/mois", d:"Salons de discussion décentralisés et chiffrés, sans vendeur unique derrière votre communauté.", u:"https://element.io"},
+
+  // Cloud & productivité
+  {n:"Nextcloud", r:"Google Workspace / Dropbox", c:"Cloud & stockage", p:"11,99 €/mois", d:"Fichiers, agenda, contacts et édition collaborative sur votre propre serveur. Demande de l'administration système.", u:"https://nextcloud.com"},
+  {n:"Syncthing", r:"Dropbox Plus", c:"Cloud & stockage", p:"11,99 €/mois", d:"Synchronisation directe entre vos appareils, sans serveur central ni quota.", u:"https://syncthing.net"},
+  {n:"AppFlowy", r:"Notion (plan payant)", c:"Productivité", p:"9,50 €/mois", d:"Notes, bases de données et tableaux dans une seule application locale, open-source et hors ligne.", u:"https://appflowy.com"},
+  {n:"Joplin", r:"Evernote Premium", c:"Productivité", p:"12,99 €/mois", d:"Prise de notes chiffrée, synchronisée via le cloud de votre choix, avec web clipper.", u:"https://joplinapp.org"},
+  {n:"Vikunja", r:"Todoist Pro / Trello", c:"Productivité", p:"5 €/mois", d:"Gestion de tâches en listes, Kanban ou Gantt, auto-hébergeable et sans limite de projets.", u:"https://vikunja.io"},
+  {n:"OpenProject", r:"Jira / Monday.com", c:"Gestion de projet", p:"8 €/utilisateur/mois", d:"Suivi de projet agile complet : backlog, sprints, Gantt, temps passé.", u:"https://www.openproject.org"},
+
+  // Sécurité
+  {n:"Wazuh", r:"Splunk Enterprise Security", c:"Sécurité", p:"sur devis", d:"SIEM et XDR open-source : collecte de logs, détection d'intrusion, contrôle de conformité et réponse automatisée.", u:"https://wazuh.com"},
+  {n:"Security Onion", r:"solutions NDR commerciales", c:"Sécurité", p:"sur devis", d:"Distribution de supervision réseau prête à l'emploi, avec Suricata, Zeek et outils d'investigation intégrés.", u:"https://securityonion.net"},
+  {n:"pfSense / OPNsense", r:"FortiGate (licence UTM)", c:"Sécurité", p:"licence annuelle", d:"Pare-feu, VPN, filtrage et haute disponibilité sur du matériel standard. Nécessite plus de configuration manuelle.", u:"https://opnsense.org"},
+  {n:"Greenbone / OpenVAS", r:"Nessus Professional", c:"Sécurité", p:"3 500 €/an", d:"Scanner de vulnérabilités avec base de tests maintenue et rapports exportables.", u:"https://www.greenbone.net"},
+  {n:"Bitwarden", r:"1Password / LastPass", c:"Sécurité", p:"3,99 €/mois", d:"Gestionnaire de mots de passe chiffré, plan gratuit illimité en nombre d'entrées, auto-hébergeable via Vaultwarden.", u:"https://bitwarden.com"},
+  {n:"Zabbix", r:"Datadog / SolarWinds", c:"Sécurité", p:"15 €/hôte/mois", d:"Supervision serveurs, réseau et applications avec alerting et tableaux de bord, sans facturation à l'hôte.", u:"https://www.zabbix.com"},
+  {n:"ClamAV", r:"antivirus payants", c:"Sécurité", p:"40 €/an", d:"Moteur antivirus open-source, très utilisé côté serveurs de fichiers et de messagerie.", u:"https://www.clamav.net"},
+
+  // Développement & infrastructure
+  {n:"VS Code / VSCodium", r:"IDE sous licence", c:"Développement", p:"20 €/mois", d:"Éditeur extensible couvrant la plupart des langages ; VSCodium en retire la télémétrie.", u:"https://vscodium.com"},
+  {n:"GitLab CE", r:"GitHub Enterprise", c:"Développement", p:"19 €/utilisateur/mois", d:"Forge Git auto-hébergée avec CI/CD, revue de code et registre de conteneurs.", u:"https://about.gitlab.com"},
+  {n:"Bruno / Insomnia", r:"Postman (plan payant)", c:"Développement", p:"14 €/mois", d:"Test et documentation d'API, avec collections stockées en fichiers versionnables dans Git.", u:"https://www.usebruno.com"},
+  {n:"Podman", r:"Docker Desktop (entreprise)", c:"Développement", p:"9 €/mois", d:"Moteur de conteneurs compatible avec les commandes Docker, sans démon root ni licence commerciale.", u:"https://podman.io"},
+  {n:"Proxmox VE", r:"VMware vSphere", c:"Infrastructure", p:"sur devis", d:"Virtualisation et conteneurs LXC avec cluster, sauvegarde et migration à chaud. Support payant optionnel.", u:"https://www.proxmox.com"},
+  {n:"Grafana + Prometheus", r:"Datadog / New Relic", c:"Infrastructure", p:"variable", d:"Collecte de métriques et tableaux de bord de supervision, standard de fait dans l'écosystème cloud.", u:"https://grafana.com"},
+
+  // Système & IA
+  {n:"Linux Mint / Ubuntu", r:"Windows 11 Pro", c:"Système", p:"259 €", d:"Système d'exploitation complet et gratuit, adapté à la bureautique comme au développement. Certains logiciels Windows n'ont pas d'équivalent direct.", u:"https://linuxmint.com"},
+  {n:"Ollama", r:"ChatGPT Plus (usage local)", c:"Intelligence artificielle", p:"20 €/mois", d:"Exécution de modèles de langage ouverts directement sur votre machine, hors ligne et sans envoi de données. Qualité en deçà des modèles commerciaux.", u:"https://ollama.com"},
+  {n:"QGIS", r:"ArcGIS", c:"Métier", p:"sur devis", d:"Système d'information géographique professionnel : cartographie, analyse spatiale, données satellites.", u:"https://qgis.org"},
+  {n:"FreeCAD / LibreCAD", r:"AutoCAD", c:"Métier", p:"2 300 €/an", d:"Conception assistée par ordinateur 2D et 3D paramétrique. Moins abouti qu'AutoCAD sur les gros projets industriels.", u:"https://www.freecad.org"},
+  {n:"Scilab / Octave", r:"MATLAB", c:"Métier", p:"860 €/an", d:"Calcul numérique et traitement du signal, avec une syntaxe très proche de MATLAB.", u:"https://octave.org"}
+];
+
+/* ---------- Terminal du hero ---------- */
+const SWAPS = [
+  ["Netflix Standard", "Pluto TV + Kanopy", "13,49 €", "0 €"],
+  ["Spotify Premium", "Navidrome", "11,99 €", "0 €"],
+  ["Adobe Photoshop", "GIMP + Photopea", "26,29 €", "0 €"],
+  ["Microsoft 365", "LibreOffice", "12,00 €", "0 €"],
+  ["Zoom Pro", "Jitsi Meet", "15,99 €", "0 €"],
+  ["Notion Business", "AppFlowy", "9,50 €", "0 €"]
+];
+const term = document.getElementById('terminal');
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+SWAPS.forEach(([svc, alt, oldP, newP], i) => {
+  const row = document.createElement('div');
+  row.className = 'term-line';
+  row.innerHTML = `<span><span class="svc">${svc}</span> <span style="color:var(--muted-2)">→</span> <span class="alt">${alt}</span></span>
+                   <span><span class="old">${oldP}</span> <span class="new">${newP}</span></span>`;
+  term.appendChild(row);
+  if (reduced) row.classList.add('in');
+  else setTimeout(() => row.classList.add('in'), 320 + i * 140);
+});
+const total = document.createElement('div');
+total.className = 'term-total';
+total.innerHTML = `<span>Économie annuelle estimée</span><span class="amount">1 large</span>`;
+term.appendChild(total);
+const annual = SWAPS.reduce((s, r) => s + parseFloat(r[2].replace(',', '.')), 0) * 12;
+total.querySelector('.amount').textContent = Math.round(annual).toLocaleString('fr-FR') + ' €';
+
+/* ---------- Catalogue ---------- */
+const categories = ["Tous", ...Array.from(new Set(TOOLS.map(t => t.c)))];
+let activeCat = "Tous", query = "";
+const chipsEl = document.getElementById('chips');
+const gridEl = document.getElementById('grid');
+const countEl = document.getElementById('count');
+document.getElementById('eyebrow-count').textContent = TOOLS.length;
+
+function renderChips() {
+  chipsEl.innerHTML = categories.map(c =>
+    `<button class="chip${c === activeCat ? ' active' : ''}" data-cat="${c}" aria-pressed="${c === activeCat}">${c}</button>`).join('');
+  chipsEl.querySelectorAll('.chip').forEach(b => b.onclick = () => {
+    activeCat = b.dataset.cat; renderChips(); renderGrid();
+  });
+}
+
+function renderGrid() {
+  const q = query.trim().toLowerCase();
+  const list = TOOLS.filter(t => {
+    const okCat = activeCat === "Tous" || t.c === activeCat;
+    const okQ = !q || (t.n + ' ' + t.r + ' ' + t.c + ' ' + t.d).toLowerCase().includes(q);
+    return okCat && okQ;
+  });
+  countEl.textContent = list.length + (list.length > 1 ? ' résultats' : ' résultat');
+
+  if (!list.length) {
+    gridEl.innerHTML = `<div class="empty"><b>Aucun résultat</b>Essayez le nom du service payant, par exemple « Photoshop » ou « Netflix ».</div>`;
+    return;
+  }
+  gridEl.innerHTML = list.map(t => `
+    <article class="card">
+      <div class="card-top">
+        <span class="pill">${t.c}</span>
+        <span class="price-tag">${t.p}</span>
+      </div>
+      <h3>${t.n}</h3>
+      <div class="swap"><span class="arrow">remplace</span> <b>${t.r}</b></div>
+      <p class="desc">${t.d}</p>
+      <a class="link" href="${t.u}" target="_blank" rel="noopener">
+        <span>Voir le site officiel</span><span>→</span>
+      </a>
+    </article>`).join('');
+
+  gridEl.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('pointermove', e => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+}
+
+const searchInput = document.getElementById('search');
+searchInput.addEventListener('input', e => { query = e.target.value; renderGrid(); });
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== searchInput) { e.preventDefault(); searchInput.focus(); }
+});
+
+renderChips(); renderGrid();
+
+/* ---------- Navbar & menu mobile ---------- */
+const header = document.getElementById('site-header');
+const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 12);
+onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+
+const burger = document.getElementById('burger'), mm = document.getElementById('mobile-menu');
+burger.onclick = () => {
+  const open = mm.classList.toggle('open');
+  burger.setAttribute('aria-expanded', String(open));
+};
+mm.querySelectorAll('a').forEach(a => a.onclick = () => {
+  mm.classList.remove('open'); burger.setAttribute('aria-expanded', 'false');
+});
+
+/* ---------- Reveal au scroll ---------- */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => reduced ? el.classList.add('in') : io.observe(el));
+
+/* ---------- Compteurs animés ---------- */
+const countIo = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (!en.isIntersecting) return;
+    const el = en.target, to = +el.dataset.to, suffix = el.dataset.suffix || '';
+    countIo.unobserve(el);
+    if (reduced) { el.textContent = to.toLocaleString('fr-FR') + suffix; return; }
+    const start = performance.now(), dur = 1400;
+    const tick = now => {
+      const p = Math.min((now - start) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(to * eased).toLocaleString('fr-FR') + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.counter').forEach(el => countIo.observe(el));
+
+/* ---------- Formulaire ---------- */
+const form = document.getElementById('form'), sent = document.getElementById('sent');
+const rules = {
+  name: v => v.trim().length > 1,
+  email: v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()),
+  subject: v => v.trim().length > 2,
+  message: v => v.trim().length >= 10
+};
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  let ok = true, firstBad = null;
+  Object.entries(rules).forEach(([id, test]) => {
+    const field = document.getElementById('f-' + id), input = document.getElementById(id);
+    const valid = test(input.value);
+    field.classList.toggle('invalid', !valid);
+    input.setAttribute('aria-invalid', String(!valid));
+    if (!valid) { ok = false; firstBad = firstBad || input; }
+  });
+  if (!ok) { firstBad.focus(); sent.classList.remove('show'); return; }
+  sent.classList.add('show');
+  form.reset();
+});
+form.querySelectorAll('input, textarea').forEach(el => {
+  el.addEventListener('input', () => {
+    const field = el.closest('.field');
+    if (field.classList.contains('invalid') && rules[el.id] && rules[el.id](el.value)) {
+      field.classList.remove('invalid');
+      el.setAttribute('aria-invalid', 'false');
+    }
+  });
+});
+</script>
+</body>
+</html>
